@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extra Sounds Options</title>
+  <style>
+    * {
+      transition: .3s cubic-bezier(0.2, .6, .1, 1);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #0f0f0f;
+      color: white;
+      font-size: 24px;
+    }
+
+    button, input:not([type="range"]) {
+      background-color: #353535;
+      color: white;
+      border: none;
+      padding: 2px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      margin: 1px 2px;
+      cursor: pointer;
+      text-overflow: ellipsis;
+      outline: none;
+      border-radius: 5px;
+      border: 1px solid #ffffff44;
+    }
+
+    input[type="text"] {
+      width: 280px !important;
+      padding: 2px 5px;
+    }
+
+    input[type="text"]:focus {
+      border: 1px solid #ffffff72;
+    }
+
+    h3 {
+      width: 360px;
+      text-transform: uppercase;
+      font-size: 40px;
+      margin: 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.354);
+    }
+
+    h4 {
+      margin-bottom: 15px;
+    }
+
+    label, p {
+      font-size: 18px;
+      height: 10px;
+    }
+
+    .vol {
+      font-size: 15px;
+      height: 10px;
+      margin: 20px 0px 50px 65px;
+    }
+
+    button {
+      padding: 10px 0;
+      width: 360px;
+    }
+
+    button:active {
+      background-color: #ffffff22;
+      transform: scale(0.97);
+    }
+
+    button.green {
+      background-color: #00ff0841;
+      border: rgba(0, 255, 0, 0.361) 1px solid;
+    }
+
+    input[type="range"] { /* i have to style this in future */
+      width: 200px;
+      margin-left: 10px;
+    }
+  </style>
+  <body>
+    <h3>Extra Sounds</h3>
+    
+    <h4>Sound URLs:</h4>
+    <p>Open: <input type="text" id="tabOpenSound" placeholder="default (paste url or file path)"></p>
+    <p class="vol"><sup>(volume: <span id="vo">1.0</span>)</sup>
+      <input type="range" id="volumeOpen" min="0" max="2" step="0.1" value="1">
+    </p>
+
+    <p>Close: <input type="text" id="tabCloseSound" placeholder="default (paste url or file path)"></p>
+    <p class="vol"><sup>(volume: <span id="vc">1.0</span>)</sup>
+      <input type="range" id="volumeClose" min="0" max="2" step="0.1" value="1">
+    </p>
+
+    <p>Switch: <input type="text" id="tabSwitchSound" placeholder="default (paste url or file path)"></p>
+    <p class="vol"><sup>(volume: <span id="vs">1.0</span>)</sup>
+      <input type="range" id="volumeSwitch" min="0" max="2" step="0.1" value="1">
+    </p>
+
+    <h4>Options:</h4>
+    <label>
+      <input type="checkbox" id="muteSwitchOnActions">
+      Mute switch sound during tab create/close
+    </label>
+  
+    <br><br>
+    <button id="save">Save :3</button>
+    <script src="options.js"></script>
+  </body>
+  </html>
