@@ -24,6 +24,5 @@
   "web_accessible_resources": [{
     "resources": ["sounds/*"],
     "matches": ["<all_urls>"]
-  }],
-  "privacy_policy": "https://xtimgg.github.io/extra-sounds/privacy-policy/"
+  }]
 }
