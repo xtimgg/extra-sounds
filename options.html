@@ -11,27 +11,32 @@
     <h3>Extra Sounds <a href="https://github.com/xtimgg/extra-sounds" target="_blank"><img src="icons/icon128.png" alt="icon" ></a></h3>
     
     <p>Open: <input type="text" id="tabOpenSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vo">1.0</span>)</sup>
+    <p class="vol"><sup>(volume: <span id="vo" contenteditable="true" >1.0</span>)</sup>
       <input type="range" id="volumeOpen" min="0" max="2" step="0.1" value="1">
     </p>
 
     <p>Close: <input type="text" id="tabCloseSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vc">1.0</span>)</sup>
+    <p class="vol"><sup>(volume: <span id="vc" contenteditable="true">1.0</span>)</sup>
       <input type="range" id="volumeClose" min="0" max="2" step="0.1" value="1">
     </p>
 
     <p>Switch: <input type="text" id="tabSwitchSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vs">1.0</span>)</sup>
+    <p class="vol"><sup>(volume: <span id="vs" contenteditable="true">1.0</span>)</sup>
       <input type="range" id="volumeSwitch" min="0" max="2" step="0.1" value="1">
     </p>
 
     <label>
-      <input type="checkbox" id="muteSwitchOnActions">
+      <input type="checkbox" id="muteSwitchOnActions" checked>
       Mute switch sound during tab create/close
     </label>
+
+    <label>
+      <input type="checkbox" id="stopPrevious" checked>
+      Allow only one sound to play at a time
+    </label>
   
-    <br><br>
-    <button id="save">Save :3</button>
+    <br>
+    <div id="buttonbg"><button id="reset">restore default settings :3</button></div>
     <script src="options.js"></script>
   </body>
   </html>
