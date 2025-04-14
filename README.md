@@ -1,5 +1,5 @@
 # Extra sounds
-extrension for chromium-based browsers, lets you set custom sounds for:
+extension for chromium-based browsers, lets you set custom sounds for:
 - tab opened
 - tab closed
 - tab switched
