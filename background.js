@@ -10,36 +10,44 @@ async function setupOffscreen() {
     await chrome.offscreen.createDocument({
       url: 'offscreen.html',
       reasons: ['AUDIO_PLAYBACK'],
-      justification: 'Play tab sound effects'
+      justification: 'Persistent audio playback'
     });
     offscreenReady = true;
   } catch (error) {
-    console.error('Failed to create offscreen document:', error);
+    console.error('Offscreen setup failed:', error);
+    offscreenReady = false;
   }
 }
 
-async function playSound(url, volume = 1.0) {
-  if (!offscreenReady) await setupOffscreen();
-  
+async function playSound(url, volume) {
+  if (!offscreenReady || !(await chrome.offscreen.hasDocument())) {
+    await setupOffscreen();
+  }
+
   try {
-    chrome.runtime.sendMessage({
-      type: "PLAY_SOUND",
-      url: url,
-      volume: volume // Optional volume parameter
+    chrome.storage.sync.get(['stopPrevious'], (result) => {
+      const stopPrevious = result.stopPrevious ?? true;
+      chrome.runtime.sendMessage({
+        type: "PLAY_SOUND",
+        url: url,
+        vol: volume,
+        stop: stopPrevious
+      });
     });
   } catch (error) {
-    console.error('Error sending audio message:', error);
-    offscreenReady = false; // Reset state on error
+    console.error('Playback failed:', error);
+    offscreenReady = false;
+    await setupOffscreen(); // re-init on failure
   }
 }
 
-// Initialize offscreen document when extension loads
+// initialize on extension load
 setupOffscreen();
 
-// Keep existing event listeners
+// keep existing event listeners
 let recentTabEvent = null;
 
-chrome.tabs.onCreated.addListener((tab) => {
+chrome.tabs.onCreated.addListener(() => {
   recentTabEvent = 'created';
   chrome.storage.sync.get(['tabOpenSound', 'volumeOpen'], (result) => {
     const tabOpenSound = result.tabOpenSound || 'sounds/tabOpen.ogg';
@@ -47,20 +55,20 @@ chrome.tabs.onCreated.addListener((tab) => {
   });
 });
 
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+chrome.tabs.onRemoved.addListener(() => {
   recentTabEvent = 'removed';
-  chrome.storage.sync.get(['tabCloseSound', 'volumeClose'], (result) => {
+  chrome.storage.sync.get(['tabCloseSound', 'volumeClose', 'stopPrevious'], (result) => {
     const tabCloseSound = result.tabCloseSound || 'sounds/tabClose.ogg';
     if (tabCloseSound) playSound(tabCloseSound, result.volumeClose);
   });
 });
 
-chrome.tabs.onActivated.addListener((activeInfo) => {
+chrome.tabs.onActivated.addListener(() => {
   chrome.storage.sync.get(['muteSwitchOnActions', 'tabSwitchSound', 'volumeSwitch'], (result) => {
-    const muteSwitchOnActions = result.muteSwitchOnActions || true;
-    if ((recentTabEvent === 'created' || recentTabEvent === 'removed') && muteSwitchOnActions) { //not working for now
-      recentTabEvent = null; // Reset to avoid blocking future activations
-      return; // Skip playing switch sound
+    const muteSwitchOnActions = result.muteSwitchOnActions ?? true;
+    if ((recentTabEvent === 'created' || recentTabEvent === 'removed') && muteSwitchOnActions) {
+      recentTabEvent = null;
+      return; // skip playing switch sound
     }
     recentTabEvent = 'activated';
       const tabSwitchSound = result.tabSwitchSound || 'sounds/tabSwitch.ogg';
