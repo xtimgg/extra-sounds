@@ -8,35 +8,85 @@
   </head>
 
   <body>
-    <h3>Extra Sounds <a href="https://github.com/xtimgg/extra-sounds" target="_blank"><img src="icons/icon128.png" alt="icon" ></a></h3>
-    
-    <p>Open: <input type="text" id="tabOpenSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vo" contenteditable="true" >1.0</span>)</sup>
-      <input type="range" id="volumeOpen" min="0" max="2" step="0.1" value="1">
-    </p>
+    <h3>Extra Sounds<img src="icons/icon128.png" alt="icon" id="logo"></h3>
+    <section id="tabs">
+      <h4>Tab sound effects:</h4>
+      <p style="margin-top: 5px;">Open: <input type="text" id="tabOpenSound" placeholder="default (paste url or file path)"></p>
+      <p class="vol"><sup>(volume: <span id="vo" contenteditable="true" >1.0</span>)</sup>
+        <input type="range" id="volumeOpen" min="0" max="2" step="0.1" value="1">
+      </p>
 
-    <p>Close: <input type="text" id="tabCloseSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vc" contenteditable="true">1.0</span>)</sup>
-      <input type="range" id="volumeClose" min="0" max="2" step="0.1" value="1">
-    </p>
+      <p>Close: <input type="text" id="tabCloseSound" placeholder="default (paste url or file path)"></p>
+      <p class="vol"><sup>(volume: <span id="vc" contenteditable="true">1.0</span>)</sup>
+        <input type="range" id="volumeClose" min="0" max="2" step="0.1" value="1">
+      </p>
 
-    <p>Switch: <input type="text" id="tabSwitchSound" placeholder="default (paste url or file path)"></p>
-    <p class="vol"><sup>(volume: <span id="vs" contenteditable="true">1.0</span>)</sup>
-      <input type="range" id="volumeSwitch" min="0" max="2" step="0.1" value="1">
-    </p>
+      <p>Switch: <input type="text" id="tabSwitchSound" placeholder="default (paste url or file path)"></p>
+      <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span id="vs" contenteditable="true">1.0</span>)</sup>
+        <input type="range" id="volumeSwitch" min="0" max="2" step="0.1" value="1">
+      </p>
+    </section>
 
-    <label>
-      <input type="checkbox" id="muteSwitchOnActions" checked>
-      Mute switch sound during tab create/close
-    </label>
+    <section id="global" style="margin-top: 30px;">
+      <h4>global preferences</h4>
+      <label>
+        <input type="checkbox" id="muteSwitchOnActions" checked>
+        Mute switch sound during tab create/close
+      </label>
 
-    <label>
-      <input type="checkbox" id="stopPrevious" checked>
-      Allow only one sound to play at a time
-    </label>
-  
-    <br>
-    <div id="buttonbg"><button id="reset">restore default settings :3</button></div>
+      <label>
+        <input type="checkbox" id="stopPrevious" checked>
+        Allow only one sound to play at a time
+      </label>
+
+      <label>
+        <input type="checkbox" id="cacheAudio" checked>
+        Cache audio files from URLs <button id="cc">clear cache<br><span>(0.0 KB)</span></button>
+      </label>
+    </section>
+
+    <div id="info">
+      
+      <section id="settings" class="bottomSection" style="width: 152px;">
+        <h4>settings</h4>
+        <span id="reset" class="fake-a">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" stroke-width="2" viewBox="0 0 512 512" style="transform: translate(0, 2px);">
+            <path transform="translate(96,0) scale(.8)" d="M73 284c1 7-1 18-4 24v1c-4 6-14 12-20 14l-1 1-8 1c-6 0-15-4-20-7v-1h-1c-4-4-9-12-11-18-19-85 9-178 73-237C128 20 192-2 255 0c51 3 77 13 106 30V14c0-7 4-18 9-23v-1c5-4 15-9 22-10h2c7 1 17 5 23 9 5 6 10 16 11 23l3 91v1c-1 7-5 17-9 22h-1c-5 5-15 9-22 10l-90 4h-1c-7 0-18-5-23-10s-9-15-10-22v-2c0-7 4-17 9-23 4-3 10-7 16-9-15-6-30-8-61-7-42 0-81 14-114 45-50 43-69 107-52 172ZM409 428a249 249 0 0 1-174 62c-51-3-75-13-104-29l1 13v2c-1 9-8 20-14 25-5 4-14 9-19 9-8 0-18-5-23-9-5-5-9-15-11-22l-8-90c1-7 4-17 8-23v-1c5-5 16-10 23-11l90-8c7 0 17 3 23 7v1c5 5 11 15 12 22v1c0 7-4 18-8 24-5 5-15 10-22 12 16 7 32 10 64 10 43 0 83-14 117-45 50-44 70-108 53-172-1-7 1-18 4-25 4-6 13-12 20-15h1c7-1 19 1 25 4 6 5 12 14 15 20v1c19 84-10 177-73 237Z"/>
+          </svg> <span id="rtext">reset</span>
+        </span>
+        <span id="backup" class="fake-a">
+          <span id="backupIcon" style="display: contents;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path fill="white" d="M409 147c6 4 7 6 7 18v11h-73l-74-1-3-2c-3-2-5-6-10-15l-6-14h78c77 0 78 0 81 3ZM68 82c-17 4-30 18-34 35-3 8-3 270 0 279 4 17 17 30 35 35 8 2 366 2 374 0 18-5 31-18 36-35 2-9 2-175 0-183-4-14-13-25-25-31l-6-4v-12c0-13-1-20-6-29-4-7-13-16-20-19-11-6-9-6-102-6h-86l-4-5c-9-13-25-23-40-26-13-2-114-2-122 1Z"/>
+            <path class="arrow" d="m282 212 95 86c3 4 1 31-2 35-6 6-14 9-23 6l-27-21-23-18v50c0 54-9 49-15 50-6 0-58 0-61-2 0 0-10 3-10-47v-51l-23 18-26 20-8 2c-13 0-23-32-18-42 2-4 93-79 101-84 10-7 28-7 39-2h1Z"/>
+          </svg></span> backup
+        </span>
+      </section>
+
+      <section id="settings-backup" class="bottomSection hidden" style="height: 26px; display: none;">
+        <h4>settings backup</h4>
+        <h5 id="sbBack">&larr;</h5>
+        <span id="export" class="fake-a" style="margin: 0 9px;"><span class="arrow">&uarr;</span>&#8201; export</span>
+        <span id="import" class="fake-a"  style="margin: 0 9px;"><span class="arrow">&darr;</span>&#8201; import</span>
+      </section>
+        
+      <section id="links" class="bottomSection" style="margin-left: 10px;">
+        <h4>links</h4>
+        <a style="margin-left: -4px;" href="https://github.com/xtimgg/extra-sounds" target="_blank">
+          <svg data-view-component="true" viewBox="0 0 24 24"><path fill="#fff" d="M12 1a11 11 0 0 0-3.5 21.4c.6.1.8-.2.8-.5v-2c-2.8.5-3.5-.7-3.7-1.3-.2-.3-.7-1.3-1.2-1.6-.3-.2-.9-.7 0-.7s1.5.8 1.7 1.1c1 1.7 2.6 1.2 3.2 1 .1-.8.4-1.3.7-1.5-2.4-.3-5-1.3-5-5.5 0-1.2.4-2.2 1.1-3a4 4 0 0 1 .2-2.8s.9-.3 3 1a10.2 10.2 0 0 1 5.5 0c2-1.4 3-1 3-1a4 4 0 0 1 .1 2.9c.7.7 1.1 1.7 1.1 3 0 4.1-2.5 5-5 5.4.4.3.8 1 .8 2v3c0 .3.2.6.7.5A11 11 0 0 0 12 1Z"/>
+          </svg> github
+        </a>
+        <span class="fake-a" id="ppOpen">
+          <svg version="1.0" viewBox="0 0 521 521">
+            <path fill="#fff" d="m243 33-14 8c-41 24-91 41-141 47-20 3-30 9-36 23l-4 6v71c0 78 1 79 7 107 14 53 48 101 95 132 12 9 91 53 96 54 7 1 15 1 21-1 5-1 81-43 94-52 55-36 90-92 101-158l1-82 1-70-3-6c-4-8-7-12-13-16-7-5-13-6-29-9-47-6-97-23-137-47-12-7-18-9-26-9l-13 2zm88 149c6 2 13 9 15 15 1 6 0 12-3 17a1571 1571 0 0 1-88 93c-6 3-13 3-18 0-3-1-16-12-30-24-27-24-31-29-31-37 0-12 10-22 22-22 6 0 12 4 29 19l17 15a1282 1282 0 0 0 70-73c3-2 8-4 11-4l6 1z"/>
+          </svg> privacy policy
+        </span>
+      </section>
+    </div>
+
+  <iframe src="https://xtimgg.github.io/extra-sounds/privacy-policy/" style="border:none;" id="privacy-policy" class="hidden"></iframe>
+    <div class="fake-a hidden" id="ppClose">
+      &larr;&#8201; go back
+    </div>
     <script src="options.js"></script>
   </body>
   </html>
