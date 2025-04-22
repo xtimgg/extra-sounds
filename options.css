@@ -383,6 +383,10 @@ label, p {
   height: 30px;
 }
 
+label {
+  user-select: none;
+}
+
 section p {
   margin-left: 5px;
 }
@@ -459,14 +463,14 @@ button.red {
 
 #cc {
   width: fit-content;
-  padding: 1px 6px;
+  padding: 1px 3px;
   font-size: 12px;
-  line-height: 10px;
+  line-height: 9px;
   margin-left: 10px;
 }
 
 #cc span {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 #cacheAudio:not(:checked) + #cc {

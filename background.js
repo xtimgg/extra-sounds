@@ -52,10 +52,13 @@ async function playSound(url, volume) {
 setupOffscreen();
 
 // keep existing event listeners
-let recentTabEvent = null;
+let skipSwitch = false;
+let start = 0;
+let end = 0;
 
 chrome.tabs.onCreated.addListener(() => {
-  recentTabEvent = 'created';
+  start = Date.now();
+  skipSwitch = true;
   chrome.storage.local.get(['tabOpenSound', 'volumeOpen'], (result) => {
     const tabOpenSound = result.tabOpenSound || 'sounds/tabOpen.ogg';
     if (tabOpenSound) playSound(tabOpenSound, result.volumeOpen);
@@ -63,7 +66,8 @@ chrome.tabs.onCreated.addListener(() => {
 });
 
 chrome.tabs.onRemoved.addListener(() => {
-  recentTabEvent = 'removed';
+  start = Date.now();
+  skipSwitch = true;
   chrome.storage.local.get(['tabCloseSound', 'volumeClose', 'stopPrevious'], (result) => {
     const tabCloseSound = result.tabCloseSound || 'sounds/tabClose.ogg';
     if (tabCloseSound) playSound(tabCloseSound, result.volumeClose);
@@ -71,13 +75,13 @@ chrome.tabs.onRemoved.addListener(() => {
 });
 
 chrome.tabs.onActivated.addListener(() => {
+  end = Date.now();
   chrome.storage.local.get(['muteSwitchOnActions', 'tabSwitchSound', 'volumeSwitch'], (result) => {
     const muteSwitchOnActions = result.muteSwitchOnActions ?? true;
-    if ((recentTabEvent === 'created' || recentTabEvent === 'removed') && muteSwitchOnActions) {
-      recentTabEvent = null;
-      return; // skip playing switch sound
+    if (skipSwitch === true && muteSwitchOnActions && end - start < 100) {
+      skipSwitch = false;
+      return;
     }
-    recentTabEvent = 'activated';
       const tabSwitchSound = result.tabSwitchSound || 'sounds/tabSwitch.ogg';
       if (tabSwitchSound) playSound(tabSwitchSound, result.volumeSwitch);
   });
@@ -89,7 +93,7 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'GET_CACHE_SIZE') {
     chrome.offscreen.hasDocument().then(hasDoc => {
       if (!hasDoc) return sendResponse({ sizeKB: 0 });

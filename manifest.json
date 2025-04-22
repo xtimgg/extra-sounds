@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Extra Sounds",
-  "version": "1.2.0",
+  "description": "Custom Sounds for Every Tab Action",
+  "version": "1.2.1",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
