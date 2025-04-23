@@ -16,4 +16,4 @@ you can set sounds from either url or file and also change volume level for each
 - random pitch shift option
 
 # Installation
-you cant install that extension from chrome web store YET, you would have to <a href="https://youtu.be/yNFwFQrc27Q">do that manually</a>
+you can install that extension from <a href="https://chromewebstore.google.com/detail/ibmbabeddalpanmbopnjlgcgcmdfboco?utm_source=item-share-cb">chrome web store</a>
