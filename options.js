@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
           input.textContent = parseVolume(result[input.id]) || 1.0;
         });
         document.getElementById('muteSwitchOnActions').checked = result.muteSwitchOnActions !== undefined ? result.muteSwitchOnActions : true;
-        document.getElementById('stopPrevious').checked = result.stopPrevious !== undefined ? result.stopPrevious : true;
+        document.getElementById('stopPrevious').checked = result.stopPrevious !== undefined ? result.stopPrevious : false;
         document.getElementById('cacheAudio').checked = result.cacheAudio !== undefined ? result.cacheAudio : true;
         const presetIndex = presetPaths.indexOf(result.preset);
         if (presetIndex !== -1) {
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (Array.from(soundInputs).every(input => input.value === '') &&
       volumeInputs.every(input => input.textContent === '1.0') &&
       document.getElementById('muteSwitchOnActions').checked === true &&
-      document.getElementById('stopPrevious').checked === true &&
+      document.getElementById('stopPrevious').checked === false &&
       document.getElementById('cacheAudio').checked === true) {
     } else {
       if (!sure) {
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       soundInputs.forEach(input => input.value = '');
       volumeInputs.forEach(input => input.textContent = '1.0');
       document.getElementById('muteSwitchOnActions').checked = true;
-      document.getElementById('stopPrevious').checked = true;
+      document.getElementById('stopPrevious').checked = false;
       document.getElementById('cacheAudio').checked = true;
       document.querySelectorAll('input[type="range"]').forEach(input => {
         input.value = 1;
