@@ -37,7 +37,7 @@ async function playSound(url, volume) {
         stopPrevious = false;
         spBypass = false;
       } else {
-        stopPrevious = result.stopPrevious ?? true;
+        stopPrevious = result.stopPrevious ?? false;
       }
       const cacheAudio = result.cacheAudio ?? true;
       chrome.runtime.sendMessage({
