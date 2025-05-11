@@ -2,14 +2,14 @@
   "manifest_version": 3,
   "name": "Extra Sounds",
   "description": "Custom Sounds for Every Tab Action",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "offscreen"],
+  "permissions": ["storage", "offscreen", "scripting"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "options.html",
@@ -22,6 +22,13 @@
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
   "web_accessible_resources": [{
     "resources": ["sounds/*"],
     "matches": ["<all_urls>"]

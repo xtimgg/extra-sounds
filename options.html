@@ -9,22 +9,97 @@
 
   <body>
     <h3>Extra Sounds<img src="icons/icon128.png" alt="icon" id="logo"></h3>
-    <section id="tabs">
-      <h4>Tab sound effects:</h4>
-      <p style="margin-top: 5px;">Open: <input type="text" id="tabOpenSound" placeholder="default (paste url or file path)"></p>
-      <p class="vol"><sup>(volume: <span id="vo" contenteditable="true" >1.0</span>)</sup>
-        <input type="range" id="volumeOpen" min="0" max="2" step="0.1" value="1">
-      </p>
+    <section id="presetSelector">
+      <h4>sfx preset (for actions that are currently not set)</h4>
+      <button id="prPrev">&lt;</button>
+      <span id="preset" data-index="0">default</span>
+      <button id="prNext">&gt;</button>
+    </section>
+      
+    <section>
+      <h4 id="sTitle">tab actions:</h4>
+      <div id="sounds">
+        <div id="tab-actions" class="page">
+          <div id="tabOpen" class="sound">
+            <p style="margin-top: 5px;" class="sInput">Open: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true" >1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+          <div id="tabClose" class="sound">
+            <p class="sInput">Close: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
 
-      <p>Close: <input type="text" id="tabCloseSound" placeholder="default (paste url or file path)"></p>
-      <p class="vol"><sup>(volume: <span id="vc" contenteditable="true">1.0</span>)</sup>
-        <input type="range" id="volumeClose" min="0" max="2" step="0.1" value="1">
-      </p>
+          <div id="tabSwitch" class="sound">
+            <p class="sInput">Switch: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+        </div>
 
-      <p>Switch: <input type="text" id="tabSwitchSound" placeholder="default (paste url or file path)"></p>
-      <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span id="vs" contenteditable="true">1.0</span>)</sup>
-        <input type="range" id="volumeSwitch" min="0" max="2" step="0.1" value="1">
-      </p>
+        <div id="mouse-and-keyboard" class="page hidden">
+          <div id="mouseDown" class="sound">
+            <p style="margin-top: 5px;" class="sInput">Mouse down: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+          
+          <div id="mouseUp" class="sound">
+            <p class="sInput">Mouse up: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+
+          <div id="keyPress" class="sound">
+            <p class="sInput">Key press: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+        </div>
+
+        <div id="form-actions" class="page hidden">
+          <div id="copy" class="sound">
+            <p style="margin-top: 5px;" class="sInput">Copy: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+
+          <div id="paste" class="sound">
+            <p class="sInput">Paste: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+
+          <div id="submit" class="sound">
+            <p class="sInput">Submit: <input type="text" placeholder="default (paste url or file path)"></p>
+            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
+              <input type="range" min="0" max="2" step="0.1" value="1">
+            </p>
+          </div>
+        </div>
+
+        <div id="nothin" class="page hidden">
+          <div style="text-align: center;">
+            <h1>coming soon</h1>
+            (or maybe not lol)
+          </div>
+        </div>
+      </div>
+      
+      <nav>
+        <button id="prev">◀</button>
+        <div id="pages"></button></div>
+        <button id="next">▶</button>
+      </nav>
     </section>
 
     <section id="global" style="margin-top: 30px;">
@@ -39,9 +114,9 @@
         Allow only one sound to play at a time
       </label>
 
-      <label>
+      <label id="cacheLabel">
         <input type="checkbox" id="cacheAudio" checked>
-        Cache audio files from URLs <button id="cc">clear cache<br><span>(0.0 KB)</span></button>
+        Cache audio files from URLs <button id="cc">cache: <span>0 KB</span></button>
       </label>
     </section>
 
@@ -70,7 +145,7 @@
       </section>
         
       <section id="links" class="bottomSection" style="margin-left: 10px;">
-        <h4>links</h4>
+        <h4>more</h4>
         <a style="margin-left: -4px;" href="https://github.com/xtimgg/extra-sounds" target="_blank">
           <svg data-view-component="true" viewBox="0 0 24 24"><path fill="#fff" d="M12 1a11 11 0 0 0-3.5 21.4c.6.1.8-.2.8-.5v-2c-2.8.5-3.5-.7-3.7-1.3-.2-.3-.7-1.3-1.2-1.6-.3-.2-.9-.7 0-.7s1.5.8 1.7 1.1c1 1.7 2.6 1.2 3.2 1 .1-.8.4-1.3.7-1.5-2.4-.3-5-1.3-5-5.5 0-1.2.4-2.2 1.1-3a4 4 0 0 1 .2-2.8s.9-.3 3 1a10.2 10.2 0 0 1 5.5 0c2-1.4 3-1 3-1a4 4 0 0 1 .1 2.9c.7.7 1.1 1.7 1.1 3 0 4.1-2.5 5-5 5.4.4.3.8 1 .8 2v3c0 .3.2.6.7.5A11 11 0 0 0 12 1Z"/>
           </svg> github
