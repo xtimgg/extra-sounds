@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
             currentSource = audioContext.createBufferSource();
             currentGainNode = audioContext.createGain();
             
-            currentGainNode.gain.value = Math.pow(10, (message.vol ?? 1) / 20);
+            currentGainNode.gain.value = message.vol ?? 1;
             
             currentSource.buffer = audioBuffer;
             currentSource.connect(currentGainNode);
