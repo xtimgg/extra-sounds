@@ -1,7 +1,7 @@
 {
   "_comment": "needed for dynamic popups inside the extension",
-  "show": "true",
+  "show": true,
   "message": "testing 123 testing",
-  "error": "false",
-  "index": "0"
+  "error": false,
+  "index": 0
 }
