@@ -9,87 +9,37 @@
 
   <body>
     <h3>Extra Sounds<img src="icons/icon128.png" alt="icon" id="logo"></h3>
-    <section id="presetSelector">
-      <h4>sfx preset (for actions that are currently not set)</h4>
-      <button id="prPrev">&lt;</button>
-      <span id="preset" data-index="0">default</span>
-      <button id="prNext">&gt;</button>
-    </section>
       
-    <section>
+    <section id="allSounds">
       <h4 id="sTitle">tab actions:</h4>
       <div id="sounds">
         <div id="tab-actions" class="page">
-          <div id="tabOpen" class="sound">
-            <p style="margin-top: 5px;" class="sInput">Open: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true" >1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
-          <div id="tabClose" class="sound">
-            <p class="sInput">Close: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
 
-          <div id="tabSwitch" class="sound">
-            <p class="sInput">Switch: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
+          <details id="tabOpen" class="sound"></details>
+          <details id="tabClose" class="sound"></details>
+          <details id="tabSwitch" class="sound"></details>
+
         </div>
 
         <div id="mouse-and-keyboard" class="page hidden">
-          <div id="mouseDown" class="sound">
-            <p style="margin-top: 5px;" class="sInput">Mouse down: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
-          
-          <div id="mouseUp" class="sound">
-            <p class="sInput">Mouse up: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
 
-          <div id="keyPress" class="sound">
-            <p class="sInput">Key press: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
+          <details id="mouseDown" class="sound"></details>
+          <details id="mouseUp" class="sound"></details>
+          <details id="keyPress" class="sound"></details>
+
         </div>
 
         <div id="form-actions" class="page hidden">
-          <div id="copy" class="sound">
-            <p style="margin-top: 5px;" class="sInput">Copy: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
-
-          <div id="paste" class="sound">
-            <p class="sInput">Paste: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
-
-          <div id="submit" class="sound">
-            <p class="sInput">Submit: <input type="text" placeholder="default (paste url or file path)"></p>
-            <p class="vol" style="margin-bottom: 16px;"><sup>(volume: <span contenteditable="true">1.0</span>)</sup>
-              <input type="range" min="0" max="2" step="0.1" value="1">
-            </p>
-          </div>
+          
+          <details id="copy" class="sound"></details>
+          <details id="paste" class="sound"></details>
+          <details id="submit" class="sound"></details>
+          
         </div>
 
         <div id="nothin" class="page hidden">
           <div style="text-align: center;">
-            <h1>coming soon</h1>
+            <h1 style="margin-bottom: 0;">coming soon</h1>
             (or maybe not lol)
           </div>
         </div>
@@ -102,7 +52,7 @@
       </nav>
     </section>
 
-    <section id="global" style="margin-top: 30px;">
+    <section id="global" style="margin-top: 37px;">
       <h4>global preferences</h4>
       <label>
         <input type="checkbox" id="muteSwitchOnActions" checked>
@@ -163,5 +113,6 @@
       &larr;&#8201; go back
     </div>
     <script src="options.js"></script>
+    <script src="content.js"></script>
   </body>
   </html>

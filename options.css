@@ -6,13 +6,12 @@
 body {
   font-family: 'Noah Grotesque', sans-serif;
   padding: 20px;
-  padding-bottom: 15px;
+  padding-bottom: 60px;
   margin: 0;
   background-color: #161616;
   color: white;
   font-size: 24px;
   width: 380px;
-  height: 565px;
   overflow: hidden;
 }
 
@@ -20,9 +19,9 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+  height: calc(100% - 60px);
   width: 100%;
-  height: 480px;
-  padding-bottom: 45px;
+  padding-bottom: 60px;
   background-color: #0f0f0f;
   pointer-events: none;
   z-index: 1;
@@ -38,66 +37,250 @@ body {
   transition: .3s cubic-bezier(.1, 1.6, .3, 1);
 }
 
-#presetSelector {
+.presetSelect {
+  display: flex;
+  width: 100%;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: left;
   white-space: nowrap;
-  margin-bottom: 25px;
-  outline: none;
 }
 
-#presetSelector h4 {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-#preset {
+.presetContainer {
   background-color: #212121;
   font-size: 16px;
   text-transform: lowercase;
   border: 1px solid #ffffff44;
-  border-width: 1px 0;
+  border-radius: 5px 0 0 5px;
   flex-grow: 1;
-  height: 28px;
   padding: 0;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: -1;
+  z-index: 1;
 }
 
-#presetSelector button {
+.picking .presetContainer {
+  border-radius: 0;
+  border-width: 1px 0;
+}
+
+.picking .presetContainer::after {
+  content: "✔";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) translateX(30px);
+  opacity: 0;
+  color: #09ff5f;
+  text-shadow: 0 0 4px #09ff5f, 0 0 8px #09ff5f76, 0 0 12px #09ff5f36;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.preset, .picking .presetContainer::after {
+  transition: 0.3s cubic-bezier(.2,1.5,.3,1);
+}
+
+.preset {
+  display: inherit;
+  width: auto;
+  height: auto;
+}
+
+.picking .presetContainer:hover .preset {
+  position: relative;
+  z-index: 2;
+  transform: translateX(-10px);
+}
+
+.picking .presetContainer:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+
+.presetSelect button {
   width: 50px;
   margin: 0;
   padding: 0;
-  border-radius: 10px 0 0 10px;
+  border-radius: 5px 0 0 5px;
   background-color: #353535;
   color: white;
   border: 1px solid #ffffff44;
   cursor: pointer;
   transform-origin: right;
+  z-index: 2;
 }
 
-#presetSelector a {
+.presetSelect button:not(.picking *) {
+  display: none;
+}
+
+.presetSelect a, .tooltip a {
   color: #aaffff;
 }
 
-#presetSelector a:hover {
+.tooltip a {
+  display: inline;
+}
+
+.tooltip.error a {
+   filter: hue-rotate(-260deg) saturate(3);
+}
+
+.presetSelect a:hover, .tooltip a:hover {
   scale: 1;
 }
 
-#presetSelector a::after {
+.presetSelect a::after, .tooltip a::after {
   clip-path: none;
   background-color: #aaffff;
   transform-origin: 0px;
   bottom: 0px;
 }
 
-#prNext {
-  border-radius: 0 10px 10px 0 !important;
+.prNext {
+  border-radius: 0 5px 5px 0 !important;
   transform-origin: left !important;
 }
+
+details {
+	position: relative;
+  font-size: 16px;
+	padding: 4px 12px;
+  margin-block: 12px 8px;
+  width: 100%;
+  margin-left: 8px;
+  box-sizing: border-box;
+  background-color: #161616;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+summary {
+	padding-left: 20px;
+  width: 99%;
+	position: relative;
+	cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  white-space: nowrap;
+  justify-content: space-between;
+  user-select: none;
+}
+
+
+/* Demo Code */
+details::details-content {
+	display: block;
+	block-size: 0;
+	overflow: hidden;
+  transition: 1s cubic-bezier(0.2, 1, 0, 1);
+	transition-property: block-size, content-visibility;
+	transition-behavior: allow-discrete;
+}
+
+details[open]::details-content {
+	/* Fallback for browsers that don't support calc-size() function */
+	block-size: auto;
+	
+	/* calc-size() function allows transition to height: auto; */
+	block-size: calc-size(auto, size);
+}
+
+/* List Item ::marker supports only some CSS properties, so we're using ::before pseudo-element instead */
+summary::marker {
+  content: none;
+}
+
+summary::before {
+	content: '»';
+	position: absolute;
+  translate: -14px -2px;
+  transform-origin: 55% 55%;
+  transition: 1s cubic-bezier(0.2, 1, 0, 1);
+}
+
+details[open] summary::before {
+	rotate: 90deg;
+}
+
+details:before {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  translate: 1px 1px;
+  transition: .5s cubic-bezier(0.2, 1, 0, 1.01);
+  background: #ffffff44;
+  border-radius: 15px;
+  z-index: -1;
+  isolation: isolate; 
+  clip-path: polygon(0 -20%, 0 -20%, 50% 0%, 100% -20%, 100% -20%, 50% 0%);
+}
+
+details[open]:before {
+  clip-path: polygon(0 0, 0 110%, 50% 100%, 100% 110%, 100% 0, 50% 0%);
+  transition: 1s cubic-bezier(0.2, 1, 0, 1.03);
+}
+
+.segmented-control {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  left: 0;
+  border-radius: 0 0 8px 8px;
+  background: #222;
+  white-space: nowrap;
+  height: 20px;
+  border: 1px solid #ffffff44;
+  border-top: none;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.segmented-control input {
+  display: none;
+}
+
+.segmented-control label {
+  padding: 0 16px;
+  height: 100%;
+  line-height: 140%;
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to top, #444, transparent);
+  transition: .4s cubic-bezier(0.2, 1.4, 0.3, 1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.segmented-control input:not(:checked) + label:hover {
+  background-color: #333;
+}
+
+.segmented-control input:checked + label {
+  color: #fff !important;
+}
+
 
 button, input:not([type="range"]) {
   background-color: #353535;
@@ -114,13 +297,26 @@ button, input:not([type="range"]) {
   border: 1px solid #ffffff44;
 }
 
-input[type="text"] {
-  width: 280px !important;
-  padding: 2px 5px;
+.mainInput {
+  height: 24px;
+  min-width: 0;
+  flex-grow: 1;
+  margin: 1px 1px 1px 8px;
   transition: all .3s cubic-bezier(0.2, .6, .1, 1), width .2s cubic-bezier(0, 1, 0, 1);
+  display: flex;
 }
 
-input[type="text"]::placeholder {
+.mainInput input {
+  width: 100%;
+  flex: 1 1 0%;
+  padding: 2px 5px;
+  transition: all .3s cubic-bezier(0.2, .6, .1, 1), width .2s cubic-bezier(0, 1, 0, 1), border-radius 0s;
+  margin: 0;
+  box-sizing: border-box;
+  height: 24px;
+}
+
+input::placeholder {
   color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
 }
@@ -129,8 +325,9 @@ input[type="text"]:focus {
   border: 1px solid #ffffff72;
 }
 
-input[type="text"].valid {
-  width: 250px !important;
+input.valid {
+  border-radius: 5px 0 0 5px;
+  margin-right: 0;
 }
 
 input[type="text"].valid.green {
@@ -142,11 +339,54 @@ input[type="text"].valid.green {
   height: 24px;
   font-size: 12px;
   padding: 0;
-  transform: scaleX(0);
+  transform-origin: left;
+  flex-shrink: 0;
+  margin-right: 1px;
+  margin-left: 0px;
+  border-left: none;
+  border-radius: 0 5px 5px 0;
 }
 
 input[type="text"].red {
   background-color: #ff000041 !important;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+
+label.upload {
+  display: none;
+  height: 18px;
+  background-color: #2f2b47;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid #b888ff6f;
+  padding: 2px 10px;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 5px;
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: break-spaces;
+  text-overflow: ellipsis;
+}
+
+input[type="file"] + label.upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+input[type="file"].valid + label.upload {
+  border-radius: 5px 0 0 5px;
+}
+
+label.upload svg {
+  width: 16px;
+  height: 16px;
+  padding-left: 0;
+  margin-left: -7px;
 }
 
 h3 {
@@ -250,9 +490,9 @@ a:active, .fake-a:active {
 
 #ppClose {
   position: absolute;
-  bottom: calc(50% - 248px);
   width: 67px;
   left: 50%;
+  bottom: 12px;
   padding: 8px 20px;
   border-radius: 50px;
   transform: translateX(-50%);
@@ -288,7 +528,7 @@ svg {
 #sounds {
   display: flex;
   flex-direction: row;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 section {
@@ -303,6 +543,12 @@ section {
   justify-self: start;
   justify-content: flex-start;
   width: 361px;
+}
+
+#allSounds {
+  width: 377px;
+  padding: 5px 0;
+  max-height: 277px;
 }
 
 section h4, section h5 {
@@ -390,6 +636,17 @@ section h5:active {
   rotate: 160deg;
 }
 
+#resetIcon {
+  position: absolute;
+  top: 250px;
+  left: 50%;
+  translate: -50% -50%;
+  font-size: 200px;
+  text-shadow: 4px 4px black, 0 0 24px #ffffff88, 0 0 48px #ffffff44, 0 0 72px #ffffff22;
+  pointer-events: none;
+  user-select: none;
+}
+
 #backup svg {
   width: 18px;
   height: 18px;
@@ -472,11 +729,17 @@ section p {
   transition: .5s cubic-bezier(0.2, 1.2, 0.3, 1);
 }
 
+details:first-child {
+  margin-top: 4px;
+}
+
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 6px 5px -3px 5px;
+  margin: 6px 0 -3px 0;
+  border-top: 1px solid #ffffff44;
+  padding-top: 8px;
 }
 
 nav button {
@@ -531,7 +794,7 @@ nav #pages {
   flex: 1;
 }
 
-p:not(.vol) {
+p:not(.vol, .pitch) {
   overflow: hidden;
 }
 
@@ -539,43 +802,46 @@ label:not(:has(input[type="checkbox"]:checked)) {
   color: #ffffff99;
 }
 
-.vol {
+.vol, .pitch {
   font-size: 15px;
-  height: 10px;
-  margin: -14px 0 15px 6px;
+  height: 20px;
+  margin: 8px 0;
   display: flex;
+
   white-space: nowrap;
-  width: 300px;
-  justify-self: right;
-  margin-right: 4px;
+  width: 320px;
+  justify-self: center;
 }
 
-.vol input {
+.vol input, .pitch input {
   flex: 1;
 }
 
 sup {
-  width: 80px;
+  width: 40px;
+  text-align: right;
 }
 
-.vol span {
+.vol span, .pitch span {
   display: inline-block;
-  width: 25px;
+  width: 40px;
   background-color: #424242;
   border-radius: 5px;
   padding: 2px 0;
+  font-size: 14px;
   text-align: center;
   margin-right: 2px;
   outline: 1px solid #ffffff44;
   outline-offset: -1px;
+  transform: translateY(-2px);
 }
 
-.vol span:hover {
+.vol span:hover, .pitch span:hover {
   background-color: #ffffff3f;
   outline-color: #ffffff63;
 }
 
-.vol span:focus {
+.vol span:focus, .pitch span:focus {
   background-color: #ffffff3f;
   outline-color: #ffffffd3;
 }
@@ -586,15 +852,24 @@ button {
   width: 360px;
 }
 
-button:hover, input[type="text"]:hover {
+button:hover, input:not([type="range"]):hover, .presetContainer:hover, .upload:hover {
   background-color: #ffffff30;
   scale: 1.01;
 }
 
-button:active, input[type="text"]:active {
+button:active, input:not([type="range"]):active, .presetContainer:active, .upload:active {
   background-color: #ffffff23;
   scale: 0.97;
 }
+
+.upload:hover {
+  background-color: #3e395b !important;	
+}
+
+.upload:active {
+  background-color: #373250 !important;	
+}
+
 .playButton:hover {
   scale: 1.1;
 }
@@ -684,7 +959,7 @@ input[type="range"] {
   appearance: none;
   background: transparent;
   width: 200px;
-  margin: 6px 0 0 2px;
+  margin: 6px 10px 0 10px;
   height: 4px;
   accent-color: #591dff;
 }
@@ -787,4 +1062,40 @@ label input[type="checkbox"]:checked::after {
 
 label input[type="checkbox"]:checked:hover {
   background-color: #532dd2;
+}
+
+
+.tooltip {
+  min-width: 350px;
+  font-size: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(20px);
+  position: fixed;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.185) 0%, rgba(0, 0, 0, 0.396) 100%);
+  color: #fff;
+  outline: 1px solid rgba(0, 255, 13, 0.241);
+  background-color: #00ff5519;
+  outline-offset: -1px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  padding: 16px 16px;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translate(-50%, 10px) scale(0);
+  transition: all 0.2s cubic-bezier(.67,0,.8,-0.33);
+  z-index: 999;
+  text-align: center;
+}
+
+.tooltip.visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition: all .3s cubic-bezier(.2,1.33,.33,1);
+}
+
+.tooltip.visible:hover {
+  transform: translate(-50%, 0) scale(1.05);
+}
+
+.tooltip.error {
+  filter: hue-rotate(260deg) saturate(2);
 }

@@ -23,17 +23,31 @@ window.addEventListener('pageshow', (event) => {
     }
 });
 
-document.addEventListener('pointerdown', () => {
+document.addEventListener('pointerdown', (event) => {
+    let el = event.target;
+    while (el) {
+        if (el.classList && el.classList.contains('playButton')) {
+            return;
+        }
+        el = el.parentElement;
+    }
     if (port) port.postMessage({ type: 'MOUSE_DOWN' });
 });
 
-document.addEventListener('pointerup', () => {
+document.addEventListener('pointerup', (event) => {
+    let el = event.target;
+    while (el) {
+        if (el.classList && el.classList.contains('playButton')) {
+            return;
+        }
+        el = el.parentElement;
+    }
     if (port) port.postMessage({ type: 'MOUSE_UP' });
 });
 
 document.addEventListener('keydown', (event) => {
-    if (!event.repeat && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
-        const ignoredKeys = ['Control', 'Shift', 'Alt', 'Meta'];
+    if (!event.repeat) {
+        const ignoredKeys = ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph'];
         if (!ignoredKeys.includes(event.key)) {
             if (port) port.postMessage({ type: 'KEY_PRESS' });
         }

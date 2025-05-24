@@ -4,30 +4,59 @@ let currentGainNode = null;
 
 const CACHE_NAME = 'audio-cache-v1';
 
-async function getCachedAudio(url) {
+async function getCachedAudio(urlOrBuffer) {
   try {
-    // Only cache HTTP(S) URLs
-    if (url.startsWith('http')) {
-      const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(url);
+    const cache = await caches.open(CACHE_NAME);
+
+    // Handle ArrayBuffer input
+    if (urlOrBuffer instanceof ArrayBuffer) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', urlOrBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const cacheKey = `arraybuffer://${hashHex}`;
+
+      const cached = await cache.match(cacheKey);
       if (cached) return cached.arrayBuffer();
-      
+
+      const response = new Response(urlOrBuffer);
+      await cache.put(cacheKey, response.clone());
+      return urlOrBuffer;
+    }
+
+    // Handle string URL input
+    const url = String(urlOrBuffer);
+    const isLocalFile = url.startsWith('file:') || url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('chrome-extension:') || url.startsWith('sounds/');
+
+    if (isLocalFile) {
+      // Skip cache for local file and chrome-extension URLs
       const response = await fetch(url);
-      await cache.put(url, response.clone());
       return response.arrayBuffer();
     }
-    
-    // Handle chrome-extension:// and file:// directly
+
+    const cacheKey = url;
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached.arrayBuffer();
+
     const response = await fetch(url);
-    return response.arrayBuffer();
-    
+    const arrayBuffer = await response.clone().arrayBuffer();
+    await cache.put(cacheKey, new Response(arrayBuffer));
+    return arrayBuffer;
+
   } catch (error) {
     console.error('Caching failed, falling back to direct fetch:', error);
-    const response = await fetch(url);
-    return response.arrayBuffer();
+
+    if (urlOrBuffer instanceof ArrayBuffer) {
+      return urlOrBuffer;
+    }
+
+    try {
+      const response = await fetch(urlOrBuffer);
+      return response.arrayBuffer();
+    } catch {
+      return null; // silent fallback in case of failure
+    }
   }
 }
-
 
 async function getCacheSize() {
     try {
@@ -59,56 +88,32 @@ async function getCacheSize() {
 
 chrome.runtime.onMessage.addListener(async (message) => {
     if (message.type === "PLAY_SOUND") {
-        try {
-            // stop any currently playing sound
-            if (currentSource && message.stop) {
-                try {
-                    currentSource.stop();
-                    currentSource.disconnect();
-                    currentGainNode.disconnect();
-                } finally {
-                    currentSource = null;
-                    currentGainNode = null;
-                }
-            }
-
-            if (!audioContext) {
-                audioContext = new AudioContext();
-                await audioContext.resume();
-            }
-
-            let arrayBuffer;
-            if (message.caching) {
-                arrayBuffer = await getCachedAudio(message.url);
-            } else {
-                const response = await fetch(message.url);
-                arrayBuffer = await response.arrayBuffer();   
-            }
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-            // create new nodes
-            currentSource = audioContext.createBufferSource();
-            currentGainNode = audioContext.createGain();
-            
-            currentGainNode.gain.value = message.vol ?? 1;
-            
-            currentSource.buffer = audioBuffer;
-            currentSource.connect(currentGainNode);
-            currentGainNode.connect(audioContext.destination);
-            currentSource.start(0);
-
-            // clean up when sound naturally ends
-            currentSource.addEventListener('ended', () => {
-                currentSource = null;
-                currentGainNode = null;
-            });
-
-        } catch (error) {
-            if(error.message.includes("fetch")) return; // ignore fetch errors
-            console.error('Audio playback error:', error);
-            currentSource = null;
-            currentGainNode = null;
+      try {
+        if (currentSource && message.stop) {
+          currentSource.stop();
+          currentSource.disconnect();
+          currentGainNode.disconnect();
+          currentSource = currentGainNode = null;
         }
+        audioContext = audioContext || new AudioContext();
+        await audioContext.resume();
+        const arrayBuffer = message.caching
+          ? await getCachedAudio(message.url)
+          : await (await fetch(message.url)).arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        currentSource = audioContext.createBufferSource();
+        currentGainNode = audioContext.createGain();
+        currentGainNode.gain.value = message.vol ?? 1;
+        currentSource.detune.value = isFinite(message.pitch) ? message.pitch * 1200 : 0;
+        currentSource.buffer = audioBuffer;
+        currentSource.connect(currentGainNode).connect(audioContext.destination);
+        currentSource.start();
+        currentSource.onended = () => currentSource = currentGainNode = null;
+      } catch (e) {
+        if (e.message?.includes("fetch")) return;
+        console.error('Audio playback error:', e);
+        currentSource = currentGainNode = null;
+      }
     }
     return true;
 });

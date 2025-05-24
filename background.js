@@ -21,7 +21,7 @@ async function setupOffscreen() {
 }
 
 let spBypass = false;
-async function playSound(url, volume) {
+async function playSound(url, volume, pitch) {
   if (!offscreenReady || !(await chrome.offscreen.hasDocument())) {
     await setupOffscreen();
     if (!offscreenReady || !(await chrome.offscreen.hasDocument())) {
@@ -44,6 +44,7 @@ async function playSound(url, volume) {
         type: "PLAY_SOUND",
         url: url,
         vol: volume,
+        pitch: pitch,
         stop: stopPrevious,
         caching: cacheAudio
       });
@@ -51,78 +52,143 @@ async function playSound(url, volume) {
   } catch (error) {
     console.error('Playback failed:', error);
     offscreenReady = false;
-    await setupOffscreen(); // re-init on failure
+    await setupOffscreen();
   }
 }
 
-// initialize on extension load
 setupOffscreen();
 
 chrome.storage.local.get(['preset'], (result) => {
   if (!result.preset) chrome.storage.local.set({ preset: 'sounds/clean/' });
 });
 
-
-// keep existing event listeners
 let skipSwitch = false;
 let start = 0;
 let end = 0;
 
-// Unified sound handler for tab events
-const handleTabEvent = (soundKey, volumeKey, fileName) => () => {
+const handleTabEvent = (soundKey, fileName) => () => {
   start = Date.now();
   skipSwitch = true;
-  chrome.storage.local.get([soundKey, volumeKey, 'preset'], (result) => {
-    const sound = result[soundKey] || `${result.preset}${fileName}.ogg`;
-    if (sound) playSound(sound, result[volumeKey]);
+  chrome.storage.local.get([soundKey, 'preset'], (result) => {
+    const soundObj = result[soundKey];
+    let url;
+    let volume = 1.0;
+    let pitch = 0.0;
+    
+    if (soundObj) {
+      switch (soundObj.type) {
+        case 'preset':
+          url = chrome.runtime.getURL(`${soundObj.preset}${fileName}.ogg`);
+          break;
+        case 'text':
+          url = soundObj.url;
+          break;
+        case 'file':
+          url = soundObj.file?.dataUrl;
+          break;
+        default:
+          url = null;
+      }
+      volume = parseFloat(soundObj.volume) || 1.0;
+      pitch = parseFloat(soundObj.pitch) || 0.0;
+    } else {
+      url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}${fileName}.ogg`);
+    }
+    
+    if (url) playSound(url, volume, pitch);
   });
 };
 
-// Tab event listeners
-chrome.tabs.onCreated.addListener(handleTabEvent('tabOpenSound', 'tabOpenVolume', 'tabOpen'));
-chrome.tabs.onRemoved.addListener(handleTabEvent('tabCloseSound', 'tabCloseVolume', 'tabClose'));
+chrome.tabs.onCreated.addListener(handleTabEvent('tabOpenSound', 'tabOpen'));
+chrome.tabs.onRemoved.addListener(handleTabEvent('tabCloseSound', 'tabClose'));
 
-// Tab activation handler
 chrome.tabs.onActivated.addListener(() => {
   end = Date.now();
-  chrome.storage.local.get(['muteSwitchOnActions', 'tabSwitchSound', 'tabSwitchVolume', 'preset'], (result) => {
+  chrome.storage.local.get(['muteSwitchOnActions', 'tabSwitchSound', 'preset'], (result) => {
     const muteSwitchOnActions = result.muteSwitchOnActions ?? true;
     if (skipSwitch && muteSwitchOnActions && end - start < 100) {
       skipSwitch = false;
       return;
     }
-    const sound = result.tabSwitchSound || `${result.preset}tabSwitch.ogg`;
-    if (sound) playSound(sound, result.tabSwitchVolume);
+
+    const soundObj = result.tabSwitchSound;
+    let url;
+    let volume = 1.0;
+    let pitch = 0.0;
+    
+    if (soundObj) {
+      switch (soundObj.type) {
+        case 'preset':
+          url = chrome.runtime.getURL(`${soundObj.preset}tabSwitch.ogg`);
+          break;
+        case 'text':
+          url = soundObj.url;
+          break;
+        case 'file':
+          url = soundObj.file?.dataUrl;
+          break;
+        default:
+          url = null;
+      }
+      volume = parseFloat(soundObj.volume) || 1.0;
+      pitch = parseFloat(soundObj.pitch) || 0.0;
+    } else {
+      url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}tabSwitch.ogg`);
+      
+    }
+    
+    if (url) playSound(url, volume, pitch);
   });
 });
 
-// Message type configuration
 const messageHandlers = {
-  MOUSE_DOWN: { soundKey: 'mouseDownSound', volumeKey: 'mouseDownVolume', file: 'mouseDown.ogg' },
+  MOUSE_DOWN: { soundKey: 'mouseDownSound', file: 'mouseDown' },
   MOUSE_UP: { 
     soundKey: 'mouseUpSound', 
-    volumeKey: 'mouseUpVolume', 
-    file: 'mouseUp.ogg',
+    file: 'mouseUp',
     prePlay: () => { spBypass = true; }
   },
-  KEY_PRESS: { soundKey: 'keyPressSound', volumeKey: 'keyPressVolume', file: 'keyPress.ogg' },
-  COPY: { soundKey: 'copySound', volumeKey: 'copyVolume', file: 'copy.ogg' },
-  PASTE: { soundKey: 'pasteSound', volumeKey: 'pasteVolume', file: 'paste.ogg' },
-  SUBMIT: { soundKey: 'submitSound', volumeKey: 'submitVolume', file: 'submit.ogg' }
+  KEY_PRESS: { soundKey: 'keyPressSound', file: 'keyPress' },
+  COPY: { soundKey: 'copySound', file: 'copy' },
+  PASTE: { soundKey: 'pasteSound', file: 'paste' },
+  SUBMIT: { soundKey: 'submitSound', file: 'submit' }
 };
 
-// Content script message handler
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'content-script') {
     port.onMessage.addListener(({ type }) => {
       const handler = messageHandlers[type];
       if (!handler) return;
 
-      chrome.storage.local.get([handler.soundKey, handler.volumeKey, 'preset'], (result) => {
-        const sound = result[handler.soundKey] || `${result.preset}${handler.file}`;
-        if (sound) {
+      chrome.storage.local.get([handler.soundKey, 'preset'], (result) => {
+        const soundObj = result[handler.soundKey];
+        let url;
+        let volume = 1.0;
+        let pitch = 0.0;
+        
+        if (soundObj) {
+          switch (soundObj.type) {
+            case 'preset':
+              url = chrome.runtime.getURL(`${soundObj.preset}${handler.file}.ogg`);
+              break;
+            case 'text':
+              url = soundObj.url;
+              break;
+            case 'file':
+              url = soundObj.file?.dataUrl;
+              break;
+            default:
+              url = null;
+          }
+          volume = parseFloat(soundObj.volume) || 1.0;
+          pitch = parseFloat(soundObj.pitch) || 0.0;
+        } else {
+          url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}${handler.file}.ogg`);
+        }
+        
+        if (url) {
           if (handler.prePlay) handler.prePlay();
-          playSound(sound, result[handler.volumeKey]);
+          playSound(url, volume, pitch);
         }
       });
     });
@@ -140,12 +206,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     chrome.offscreen.hasDocument().then(hasDoc => {
       if (!hasDoc) return sendResponse({ sizeKB: 0 });
       
-      // Forward to offscreen document
       chrome.runtime.sendMessage(
         { type: 'CALCULATE_CACHE_SIZE' },
         (response) => sendResponse(response)
       );
     });
-    return true; // Keep message channel open
+    return true;
   }
 });
