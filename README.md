@@ -3,22 +3,19 @@ extension for chromium-based browsers, lets you set custom sounds for:
 - tab opened
 - tab closed
 - tab switched
-- mouse  (up, down)*
-- key pressed*
-- copy*
-- paste*
-- submit* <br>
+- mouse (up, down)
+- key pressed
+- copy
+- paste
+- submit  
 
-<i> *chrome web store version may not yet be updated</i>
-<br><br>
+you can set sounds from either preset, file or url and also change volume level and pitch for each sound
+there are currently 3 presets available and you can use any of them individually for any action (some of the sounds are designed by [zapocan](https://www.youtube.com/@zapocan))
 
-you can set sounds from either url or file (files currently dont work if extension is installed from chrome web store) and also change volume level for each sound (0% - 200%)
-<br><br>
 
 # Possible features in future updates:
 - even more sound actions
-- file picker
-- random pitch shift option
+- separate sound speed and sound pitch sliders + random pitch shift option
 
 # Installation
-you can install that extension from <a href="https://chromewebstore.google.com/detail/ibmbabeddalpanmbopnjlgcgcmdfboco?utm_source=item-share-cb">chrome web store</a>
+you can install that extension from [chrome web store](https://chromewebstore.google.com/detail/ibmbabeddalpanmbopnjlgcgcmdfboco)
