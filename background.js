@@ -89,8 +89,8 @@ const handleTabEvent = (soundKey, fileName) => () => {
         default:
           url = null;
       }
-      volume = parseFloat(soundObj.volume) || 1.0;
-      pitch = parseFloat(soundObj.pitch) || 0.0;
+      volume = parseFloat(soundObj.volume) ?? 1.0;
+      pitch = parseFloat(soundObj.pitch) ?? 0.0;
     } else {
       url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}${fileName}.ogg`);
     }
@@ -130,8 +130,8 @@ chrome.tabs.onActivated.addListener(() => {
         default:
           url = null;
       }
-      volume = parseFloat(soundObj.volume) || 1.0;
-      pitch = parseFloat(soundObj.pitch) || 0.0;
+      volume = parseFloat(soundObj.volume) ?? 1.0;
+      pitch = parseFloat(soundObj.pitch) ?? 0.0;
     } else {
       url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}tabSwitch.ogg`);
       
@@ -180,8 +180,8 @@ chrome.runtime.onConnect.addListener((port) => {
             default:
               url = null;
           }
-          volume = parseFloat(soundObj.volume) || 1.0;
-          pitch = parseFloat(soundObj.pitch) || 0.0;
+          volume = parseFloat(soundObj.volume) ?? 1.0;
+          pitch = parseFloat(soundObj.pitch) ?? 0.0;
         } else {
           url = chrome.runtime.getURL(`${result.preset || 'sounds/clean/'}${handler.file}.ogg`);
         }
@@ -212,5 +212,32 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       );
     });
     return true;
+  }
+});
+
+chrome.runtime.onInstalled.addListener(async () => {
+  const manifest = chrome.runtime.getManifest();
+  for (const cs of manifest.content_scripts) {
+    for (const tab of await chrome.tabs.query({url: cs.matches})) {
+      if (tab.url.match(/^(chrome|chrome-extension):\/\//i)) {
+        continue;
+      }
+      const target = {tabId: tab.id, allFrames: cs.all_frames};
+      if (cs.js && cs.js.includes('content.js')) {
+        chrome.scripting.executeScript({
+          files: ['content.js'],
+          injectImmediately: cs.run_at === 'document_start',
+          world: cs.world, // requires Chrome 111+
+          target,
+        });
+      }
+      if (cs.css && cs.css.length > 0) {
+        chrome.scripting.insertCSS({
+          files: cs.css,
+          origin: cs.origin,
+          target,
+        });
+      }
+    }
   }
 });

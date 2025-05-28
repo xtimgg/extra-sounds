@@ -3,9 +3,7 @@ document.querySelectorAll('body > *').forEach(element => {
 });
 document.addEventListener('DOMContentLoaded', () => {
   if(localStorage.getItem('reload') !== '1') {
-    if (!localStorage.getItem('timeOpened')) {
-      popup("warning: just after install some actions may not work until you reload the page", true);
-    } else if (localStorage.getItem('timeOpened') === "10") {
+    if (localStorage.getItem('timeOpened') === "10") {
       popup("thanks for using this extension :3 <br>i spent a lot of time on it, so maybe <a href='https://chromewebstore.google.com/detail/extra-sounds/ibmbabeddalpanmbopnjlgcgcmdfboco/reviews' target='_blank'>review it for me</a>?");
     }
     (async () => {
@@ -30,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
     localStorage.setItem('timeOpened', String(Number(localStorage.getItem('timeOpened') || 0) + 1));
   }
+  const allDetails = document.querySelectorAll('details')
+
   document.querySelectorAll('.sound').forEach((sound) => {
     sound.innerHTML = '';
     const summary = document.createElement('summary');
@@ -163,13 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
     pitchP.appendChild(pitchSpan);
   });
 
-  document.querySelectorAll('details').forEach(deet=>{
+  allDetails.forEach(deet=>{
     deet.addEventListener('toggle', () => {
       if (deet.open) {
-        document.querySelectorAll('details').forEach(bye=>{
+        allDetails.forEach(bye=>{
           if (bye!=deet && bye.open) {
             bye.querySelector('.picking .presetContainer')?.click();
-            bye.open = false;
+            requestAnimationFrame(() => {
+              bye.open = false;
+            });
           }
           const input = bye.querySelector('.mainInput');
           const control = bye.querySelector('.segmented-control');
@@ -199,8 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   function handleRadioLabelClick(lbl) {
-    lbl.parentNode.querySelector('.slider').style.width = `${lbl.offsetWidth}px`;
-    lbl.parentNode.querySelector('.slider').style.left = `${lbl.offsetLeft}px`;
+    requestAnimationFrame(() => {
+        const slider = lbl.parentNode.querySelector('.slider');
+        slider.style.width = `${lbl.offsetWidth}px`;
+        slider.style.left = `${lbl.offsetLeft}px`;
+    });
     setTimeout(() => {
       lbl.closest('details').querySelector('.mainInput input').dispatchEvent(new Event('input'));
     });
@@ -221,9 +226,13 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chrome.storage.local.get(mainInput.id, result => {
           mainInput.value = result[mainInput.id]?.url || '';
+          setTimeout(() => {
+            mainInput.dispatchEvent(new Event('input'));
+          }, 69);
         });
       }
       presetInput.classList.remove('picking');
+      presetInput.querySelector('.preset').innerHTML = presetNames[presetInput.querySelector('.preset').dataset.index];
       presetInput.style.display = 'none';
       mainInput.placeholder = "https://site.com/audio.mp3";
     }
@@ -233,16 +242,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   setTimeout(() => {
-    document.querySelectorAll('details').forEach(det => {det.open = true});
-    document.querySelectorAll('details').forEach(det => {det.open = false});
+    allDetails.forEach(det => {det.open = true});
+    allDetails.forEach(det => {det.open = false});
   });
   setTimeout(() => {
-    document.querySelectorAll('details').forEach(det => {det.open = true});
-    document.querySelectorAll('details').forEach(det => {det.open = false});
+    allDetails.forEach(det => {det.open = true});
+    allDetails.forEach(det => {det.open = false});
   }, 500); //fallback
 
   // Also activate when any details element is opened or closed
-  document.querySelectorAll('details').forEach(deet => {
+  allDetails.forEach(deet => {
     deet.addEventListener('toggle', () => {
       // Find the checked radio label inside thiZzs details
       const checkedRadio = deet.querySelector('input[type="radio"]:checked');
@@ -298,9 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       document.querySelectorAll('input[type="range"]').forEach(input => {
         input.value = parseFloat(input.parentNode.querySelector('span').textContent).toFixed(1);
-      });
-      document.querySelectorAll('input[type="text"]').forEach(input => {
-        input.dispatchEvent(new Event('input'));
       });
     }, 10);
     updateCacheDisplay();
@@ -374,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
               {
                 type: container.querySelector('input[type="radio"]:checked').value,
                 preset: presetPaths[container.querySelector('.preset').dataset.index],
-                url: soundInput.type === 'text'
+                url: soundInput.type === 'text' && soundInput.style.display !== 'none'
                   ? soundInput.value
                   : storage?.url,
                 file: storage?.file,
@@ -567,68 +573,100 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelectorAll('.mainInput input').forEach(input => {
+    let debounceTimer;
     input.addEventListener('input', async function() {
-      const allInputs = Array.from(document.querySelectorAll('input[type="text"]'));
-      if (document.querySelector('input[type="text"]:not([style*="display: none"])')) {
-        document.getElementById('cacheLabel').style.height = '';
-      } else {
-        document.getElementById('cacheLabel').style.height = '0px';
-        chrome.runtime.sendMessage({ type: 'CLEAR_CACHE' });
-        updateCacheDisplay();
-      }
-      let url;
-      let _dataUrl;
-      if (this.type === 'text' && this.style.display !== 'none') {
-        url = this.value;
-      } else if (this.type === 'file') {
-        try {
-          const dataUrl = await getStoredDataUrl(this.id);
-          url = dataUrl;
-          _dataUrl = dataUrl;
-        } catch (err) { //do nothing if file missing
-          url = null;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const currentPB = this.parentNode.parentNode.querySelector('.playButton');
+        if (document.querySelector('input[type="text"]:not([style*="display: none"])')) {
+          document.getElementById('cacheLabel').style.height = '';
+        } else {
+          document.getElementById('cacheLabel').style.height = '0px';
+          chrome.runtime.sendMessage({ type: 'CLEAR_CACHE' });
+          updateCacheDisplay();
         }
-      } else {
-        url = chrome.runtime.getURL(`${presetPaths[input.parentElement.querySelector('.preset').dataset.index] + this.id.replace('Sound', '')}.ogg`);
-      }
-      doesItMeow = await isAudioPlayable(url);
-      if(doesItMeow) {
-        this.parentNode.parentNode.querySelector('.playButton')?.remove(); // checks if exists with '?'
-        const playButton = document.createElement('button');
-        const playIcon = document.createElement('span');
-        playIcon.innerText = '▲';
-        playIcon.style.display = 'inline-block';
-        playIcon.style.transform = 'rotate(90deg)';
-        playButton.className = 'playButton';
-        playButton.appendChild(playIcon);
-        playButton.onclick = () => {
-          if (source && playIcon.innerText === '❚❚') {
-            source.stop();
-            source = null;
+        let url;
+        let _dataUrl;
+        if (this.type === 'text' && this.style.display !== 'none') {
+          url = this.value;
+        } else if (this.type === 'file') {
+          try {
+            const dataUrl = await getStoredDataUrl(this.id);
+            url = dataUrl;
+            _dataUrl = dataUrl;
+          } catch (err) { //do nothing if file missing
+            url = null;
+          }
+        } else {
+          url = chrome.runtime.getURL(`${presetPaths[input.parentElement.querySelector('.preset').dataset.index] + this.id.replace('Sound', '')}.ogg`);
+        }
+        doesItMeow = await isAudioPlayable(url);
+        let isNew = false;
+        if(doesItMeow) {
+          if (currentPB) {
+            if (currentPB.dataset.url === url) return;
+            isNew = false;
+            currentPB.remove();
           } else {
-            let vol = parseFloat(this.closest('details').querySelector('.vol span').textContent);
-            let pitch = parseFloat(this.closest('details').querySelector('.pitch span').textContent);
-            playIcon.innerText = '❚❚';
-            playIcon.style.transform = 'rotate(0deg)';
-            playAudio(url, {
-              v: vol,
-              p: pitch,
-              e: () => {
-                playIcon.innerText = '▲';
-                playIcon.style.transform = 'rotate(90deg)';
-                source = null;
-              }
+            isNew = true;
+          }
+          const playButton = document.createElement('button');
+          const playIcon = document.createElement('span');
+          playIcon.innerText = '▲';
+          playIcon.style.display = 'inline-block';
+          playIcon.style.transform = 'rotate(90deg)';
+          playButton.className = 'playButton';
+          playButton.appendChild(playIcon);
+          playButton.dataset.url = url;
+          playButton.onclick = () => {
+            if (source && playIcon.innerText === '❚❚') {
+              source.stop();
+              source = null;
+            } else {
+              let vol = parseFloat(this.closest('details').querySelector('.vol span').textContent);
+              let pitch = parseFloat(this.closest('details').querySelector('.pitch span').textContent);
+              playIcon.innerText = '❚❚';
+              playIcon.style.transform = 'rotate(0deg)';
+              playAudio(url, {
+                v: vol,
+                p: pitch,
+                e: () => {
+                  playIcon.innerText = '▲';
+                  playIcon.style.transform = 'rotate(90deg)';
+                  source = null;
+                }
+              });
+            }
+          };
+          if(this.closest('details').querySelector('.picking')) playButton.style.display = 'none';
+          this.parentNode.parentNode.append(playButton);
+          this.className = 'valid';
+          if (isNew) {
+            playButton.animate([
+              { width: '0px' },
+              { width: '24px' }
+            ], {
+              duration: 200,
+              easing: 'cubic-bezier(0,1.5,0,1)'
             });
           }
-        };
-        if(this.closest('details').querySelector('.picking')) playButton.style.display = 'none';
-        this.parentNode.parentNode.append(playButton);
-        this.className = 'valid';
-        if(!this.value == '') this.className = 'valid green'
-      } else {
-        this.parentNode.parentNode.querySelector('.playButton')?.remove(); // checks if exists with '?'
-        this.className = 'red';
-      }
+          if(!this.value == '') this.className = 'valid green'
+        } else {
+          if (currentPB) {
+            currentPB.animate([
+              { width: '24px' },
+              { width: '0px' }
+            ], {
+              duration: 100,
+              easing: 'cubic-bezier(0,0.75,0,1)'
+            });
+            setTimeout(() => {
+              currentPB.remove();
+            }, 50);
+          }
+          this.className = 'red';
+        }
+      }, 100);
     });
   });
 
@@ -665,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
     directionBefore = direction;
     currentPage = index;
     if (pageBefore === index) return;
-    document.querySelectorAll('details').forEach(deet=>{
+    allDetails.forEach(deet=>{
       if (deet.open) deet.open = false;
     });
     direction = index > pageBefore ? 1 : -1;
@@ -754,6 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
       element.style.filter = '';
     });
     document.querySelectorAll('*:not(#sounds, .hidden, .hidden *, #info *:not(h4), nav, nav *:not(button), .playButton.anim, details *:not(.segmented-control))').forEach((element, index) => {
+      if (index < 6) return;
       element.style.opacity = '0';
       setTimeout(() => {
         if(element.id !== 'info') {
@@ -774,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
         element.style.opacity = '';
-      }, (index) * 20);
+      }, (index-5) * 20);
     });
   }
 
@@ -866,13 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       );
     });
-    loadSettings();
-    setTimeout(() => {
-      document.querySelectorAll('summary').forEach(summary => {
-        summary.click();
-        summary.parentNode.open = false;
-      });
-    }, 0);
   };
 
   function handleBackupAnimation(element = document.getElementById('backup'), icon = document.getElementById('backupIcon').querySelector('svg')) {
@@ -966,6 +998,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('backup').classList.add('green');
         document.getElementById('backup').childNodes[2].textContent = 'loaded!';
         handleBackupAnimation();
+        loadSettings();
+        setTimeout(() => {
+          document.querySelectorAll('summary').forEach(summary => {
+            summary.click();
+            summary.parentNode.open = false;
+          });
+        }, 10);
       });
     });
 
@@ -980,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// some shit from chatgpt for file storing and playing that probably works lol
+// some shit from chatgpt for file storing and playing etc that probably works lol
 
 var source;
 const ctx   = new (AudioContext||webkitAudioContext)(),
@@ -1155,7 +1194,6 @@ async function isAudioPlayable(input) {
     let buf;
     if (typeof input === 'string') {
       const res = await fetch(input);
-      if (!res.ok) throw new Error('Fetch failed');
       buf = await res.arrayBuffer();
     } else if (input instanceof ArrayBuffer) {
       buf = input;

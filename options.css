@@ -1,7 +1,12 @@
 @import url('https://fonts.cdnfonts.com/css/noah-grotesque');
 * {
   transition: .3s cubic-bezier(0.2, .6, .1, 1);
-}
+} /* performace debuff */
+
+.slider, .preset, .page, .tooltip {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+} /* performance buff so it cancels out the previous debuff XD */
 
 body {
   font-family: 'Noah Grotesque', sans-serif;
@@ -243,6 +248,7 @@ details[open]:before {
   border-top: none;
   overflow: hidden;
   margin-bottom: 20px;
+  transition: none;
 }
 
 .segmented-control input {
@@ -345,6 +351,7 @@ input[type="text"].valid.green {
   margin-left: 0px;
   border-left: none;
   border-radius: 0 5px 5px 0;
+  overflow: hidden;
 }
 
 input[type="text"].red {

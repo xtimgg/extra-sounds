@@ -87,33 +87,41 @@ async function getCacheSize() {
   
 
 chrome.runtime.onMessage.addListener(async (message) => {
-    if (message.type === "PLAY_SOUND") {
-      try {
-        if (currentSource && message.stop) {
-          currentSource.stop();
-          currentSource.disconnect();
-          currentGainNode.disconnect();
-          currentSource = currentGainNode = null;
-        }
-        audioContext = audioContext || new AudioContext();
-        await audioContext.resume();
-        const arrayBuffer = message.caching
-          ? await getCachedAudio(message.url)
-          : await (await fetch(message.url)).arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        currentSource = audioContext.createBufferSource();
-        currentGainNode = audioContext.createGain();
-        currentGainNode.gain.value = message.vol ?? 1;
-        currentSource.detune.value = isFinite(message.pitch) ? message.pitch * 1200 : 0;
-        currentSource.buffer = audioBuffer;
-        currentSource.connect(currentGainNode).connect(audioContext.destination);
-        currentSource.start();
-        currentSource.onended = () => currentSource = currentGainNode = null;
-      } catch (e) {
-        if (e.message?.includes("fetch")) return;
-        console.error('Audio playback error:', e);
+  if (message.type === "PLAY_SOUND") {
+    try {
+      if (currentSource && message.stop) {
+        // remove the onended handler to prevent interference
+        currentSource.onended = null;
+        currentSource.stop();
+        currentSource.disconnect();
+        currentGainNode.disconnect();
         currentSource = currentGainNode = null;
       }
+
+      audioContext = audioContext || new AudioContext();
+      await audioContext.resume();
+
+      const arrayBuffer = message.caching
+        ? await getCachedAudio(message.url)
+        : await (await fetch(message.url)).arrayBuffer();
+
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      currentSource = audioContext.createBufferSource();
+      currentGainNode = audioContext.createGain();
+
+      currentGainNode.gain.value = message.vol ?? 1;
+      currentSource.detune.value = isFinite(message.pitch) ? message.pitch * 1200 : 0;
+      currentSource.buffer = audioBuffer;
+
+      currentSource.connect(currentGainNode).connect(audioContext.destination);
+      currentSource.start();
+
+      currentSource.onended = () => currentSource = currentGainNode = null;
+    } catch (e) {
+      if (e.message?.includes("fetch")) return;
+      console.error('Audio playback error:', e);
+      currentSource = currentGainNode = null;
     }
-    return true;
+  }
+  return true;
 });
