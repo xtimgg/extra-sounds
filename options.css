@@ -145,6 +145,10 @@ body {
   bottom: 0px;
 }
 
+.presetSelect a::after {
+  display: none;
+}
+
 .prNext {
   border-radius: 0 5px 5px 0 !important;
   transform-origin: left !important;
