@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     deet.querySelector('.presetContainer').addEventListener('click', event => {
-      if (event.target.closest('a')) return;
       if (deet.open) {
       event.stopPropagation();
       event.preventDefault();
@@ -262,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const presetNames = ['clean (<a href="https://youtu.be/AD1JUStm-2Q" target="_blank">by @zapocan</a>)', 'wooden (<a href="https://youtu.be/F7NP-Q0REZ8" target="_blank">by @zapocan</a>)', 'minecraft sfx (<a href="https://minecraft.wiki/w/Category:Sound_effects" target="_blank">source</a>)'];
+  const presetNames = ['clean (<a>by @zapocan</a>)', 'wooden (<a>by @zapocan</a>)', 'minecraft sound effects'];
   const presetPaths = ['sounds/clean/', 'sounds/wooden/', 'sounds/minecraft/'];
   const actionNames = Array.from(document.querySelectorAll('.sound')).map(el => el.id);
   const soundInputs = actionNames.map(action => document.getElementById(`${action}Sound`));
@@ -647,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
               { width: '24px' }
             ], {
               duration: 200,
-              easing: 'cubic-bezier(0,1.5,0,1)'
+              easing: 'ease'
             });
           }
           if(!this.value == '') this.className = 'valid green'
@@ -658,11 +657,11 @@ document.addEventListener('DOMContentLoaded', () => {
               { width: '0px' }
             ], {
               duration: 100,
-              easing: 'cubic-bezier(0,0.75,0,1)'
+              easing: 'ease'
             });
             setTimeout(() => {
               currentPB.remove();
-            }, 50);
+            }, 100);
           }
           this.className = 'red';
         }
@@ -791,9 +790,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('body > *').forEach(element => {
       element.style.filter = '';
     });
-    document.querySelectorAll('*:not(#sounds, .hidden, .hidden *, #info *:not(h4), nav, nav *:not(button), .playButton.anim, details *:not(.segmented-control))').forEach((element, index) => {
+    document.querySelectorAll('*:not(#sounds, .hidden, .hidden *, #info *:not(h4), nav, nav *:not(button), details *:not(.segmented-control))').forEach((element, index) => {
       if (index < 6) return;
+      element.style.transition = 'none';
       element.style.opacity = '0';
+      setTimeout(() => {
+        element.style.transition = '';
+      }, 0);
       setTimeout(() => {
         if(element.id !== 'info') {
           element.animate([
@@ -813,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
         element.style.opacity = '';
-      }, (index-5) * 20);
+      }, (index-5) * 10);
     });
   }
 
